@@ -1,0 +1,72 @@
+[
+  {
+    "id": "danger-signs-pregnancy",
+    "content": "Emergency danger signs during pregnancy include vaginal bleeding, severe abdominal pain, a severe headache with blurred or changed vision, reduced or stopped fetal movement, seizures or convulsions, loss of consciousness, and difficulty breathing. Anyone experiencing these should go to a hospital immediately rather than waiting for a scheduled appointment.",
+    "metadata": { "category": "emergency", "stage": "pregnancy" }
+  },
+  {
+    "id": "danger-signs-postpartum",
+    "content": "After delivery, warning signs that need urgent medical review include heavy bleeding that soaks through a pad in under an hour, fever, severe headache, foul-smelling discharge, and severe breast pain or a hard, red, hot area on the breast, which can indicate mastitis or infection.",
+    "metadata": { "category": "emergency", "stage": "postpartum" }
+  },
+  {
+    "id": "nutrition-general",
+    "content": "A healthy pregnancy diet includes iron-rich foods such as beans, groundnuts, and leafy greens, folic acid from fortified foods or supplements, protein from fish, eggs, or legumes, and plenty of clean water. Alcohol should be avoided entirely, and caffeine should be limited.",
+    "metadata": { "category": "nutrition" }
+  },
+  {
+    "id": "antenatal-visits",
+    "content": "Regular antenatal (prenatal) visits let a midwife or doctor check blood pressure, weight, the baby's growth and heartbeat, and screen for conditions like anemia, gestational diabetes, and pre-eclampsia early, when they are easiest to manage.",
+    "metadata": { "category": "care-schedule" }
+  },
+  {
+    "id": "common-first-trimester",
+    "content": "In the first trimester, nausea, tiredness, tender breasts, and mild cramping are common and usually not dangerous. Persistent vomiting that prevents keeping food or water down, or any bleeding, should be checked by a health worker.",
+    "metadata": { "category": "symptoms", "stage": "first_trimester" }
+  },
+  {
+    "id": "common-second-third-trimester",
+    "content": "In the second and third trimester, mild swelling of the feet and ankles, backache, and occasional Braxton Hicks (practice) contractions are common. Sudden or severe swelling of the face and hands, a severe headache, or vision changes can be signs of pre-eclampsia and need urgent review.",
+    "metadata": { "category": "symptoms", "stage": "later_trimesters" }
+  },
+  {
+    "id": "gestational-diabetes",
+    "content": "Gestational diabetes is high blood sugar that develops during pregnancy. It is usually managed with diet changes, regular light activity, and monitoring blood sugar; some women also need medication. It's typically screened for between 24 and 28 weeks.",
+    "metadata": { "category": "conditions" }
+  },
+  {
+    "id": "high-blood-pressure-preeclampsia",
+    "content": "High blood pressure in pregnancy (including pre-eclampsia) is a serious condition that needs close monitoring. Warning signs include a severe headache, vision changes, upper abdominal pain, and sudden swelling. It can affect both mother and baby, so any of these symptoms should be reported immediately.",
+    "metadata": { "category": "conditions" }
+  },
+  {
+    "id": "breastfeeding-basics",
+    "content": "Breast milk provides ideal nutrition for a newborn's first six months. Frequent feeding (8-12 times a day for a newborn), a good latch, and skin-to-skin contact help establish breastfeeding. Cracked nipples, engorgement, or a painful lump can often be managed with support from a midwife or lactation counselor.",
+    "metadata": { "category": "postpartum", "topic": "breastfeeding" }
+  },
+  {
+    "id": "mental-health-postpartum",
+    "content": "Persistent sadness, anxiety, difficulty bonding with the baby, or thoughts of harming yourself or the baby after delivery can be signs of postpartum depression or anxiety, which are common and treatable. These feelings are not a personal failure, and support from a doctor, counselor, or trusted family member can help.",
+    "metadata": { "category": "postpartum", "topic": "mental_health" }
+  },
+  {
+    "id": "lab-terms-overview",
+    "content": "Common pregnancy lab tests and what they generally check: blood pressure measures how forcefully blood moves through the body; hemoglobin checks for anemia (low blood iron); a urine protein test checks how well the kidneys are working; a blood glucose test screens for gestational diabetes; a blood group test identifies which blood type you have in case a transfusion is ever needed; an HIV test checks for the HIV virus in the blood; and an ultrasound scan shows how the baby is growing and positioned inside the womb. These are general explanations of what each test measures, not an interpretation of anyone's specific result - a clinician should always explain what an individual's own numbers mean.",
+    "metadata": { "category": "lab" }
+  },
+  {
+    "id": "newborn-danger-signs",
+    "content": "Newborn warning signs that need urgent medical attention include fast or difficult breathing, not feeding at all, yellowing of the skin or eyes (jaundice), and fever or the baby feeling unusually cold to the touch. Any of these in a newborn should be checked by a health worker right away.",
+    "metadata": { "category": "emergency", "stage": "newborn" }
+  },
+  {
+    "id": "common-symptoms-additional",
+    "content": "Other common pregnancy symptoms that are usually not dangerous on their own include heartburn, mild itching, increased vaginal discharge, needing to urinate more often, constipation, and occasional leg cramps, especially at night. These can often be eased with diet and posture changes, but persistent or severe itching, discharge with a bad smell or unusual color, or symptoms that suddenly worsen should be checked by a health worker.",
+    "metadata": { "category": "symptoms" }
+  },
+  {
+    "id": "mastitis-breastfeeding-difficulty",
+    "content": "Difficulty breastfeeding - such as the baby struggling to latch, feeding only a little, or refusing to feed - can often be improved with help from a midwife or lactation counselor on positioning and latch. A red, hot, or painful area on the breast, especially with fever, can be a sign of mastitis (breast infection) and needs prompt medical review rather than waiting it out.",
+    "metadata": { "category": "postpartum", "topic": "breastfeeding" }
+  }
+]

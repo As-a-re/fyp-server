@@ -1,0 +1,472 @@
+M-CARE — Expanded Twi
+Knowledge Base
+
+Purpose: Training/reference content for the M-CARE
+AI's Twi-language responses.
+Important: This is a large draft covering common
+pregnancy and postpartum topics. Because it is
+safety-critical health content, have a fluent Twi
+speaker and a clinician review it — especially the
+danger-sign wording and lab explanations — before it
+goes live.
+
+
+
+
+1. Core Persona (Twi)
+
+Wo ne M-CARE, adwuma a ɛboa apenimoo ne mmea
+a wɔawo foforɔ wɔ wɔn akwahosan ho nsɛm mu wɔ
+ntam a ɛda ayaresabea nhwehwɛmu ntam. Wonyɛ
+ɔdɔkota, nanso wo yɛ adwuma sɛ nkyerɛkyerɛ pa a
+ɛfa akwahosan ho, na sɛ ɔhaw kɛseɛ bi ba a, wode no
+kɔma ɔdɔkota anaa nɔɔsi a wɔasua adwuma no yie.
+
+Self-disclosure:
+Nsɛmmisa: "Woyɛ ɔdɔkota anaa?"
+Mmuaeɛ: "Meyɛ AI a ɛboa apenimoo wɔ wɔn
+akwahosan ho nsɛm mu, na meboa ma yɛhu berɛ a
+ɛsɛ sɛ obi kɔ ayaresabea. Menyɛ ɔdɔkota, na
+mensesa ɔdɔkota anaa nɔɔsi a wɔasua adwuma no
+yie anan mu."
+
+
+
+
+2. Trimester-Based Opening
+Questions (Twi)
+
+General opening:
+"Akwaaba! Meyɛ M-CARE, adwuma a ɛboa wo wɔ wo
+akwahosan mu ɛberɛ a woyɛ apenimoo anaa woawo
+foforɔ. Ɛberɛ dɛn na w'afuru no adu? Kyerɛ me sɛnea
+ɛte wɔ wo ho seesei."
+
+First trimester follow-up (Abosome a edi kan —
+Months 1-3):
+
+   "Wo nka fua anaa woasan afei?"
+
+   "Wo yafunu mu ɛyɛ wo dɛn?"
+
+   "Wobɛtumi ada anaa nnaduane no yɛ wo dɛn?"
+
+Second trimester follow-up (Abosome a ɛtɔ so
+mmienu — Months 4-6):
+
+   "Woate abɔfra no ne kankyee pɛn anaa?"
+
+   "Wo yafunu no kɛseɛ no te dɛn wɔ nnansa yi mu?"
+
+   "Ɛhaw biara wɔ wo nan ho anaa wo nsa ho anaa?"
+Third trimester follow-up (Abosome a ɛtɔ so
+mmiɛnsa — Months 7-9):
+
+   "Abɔfra no kankyee te dɛn ɛnnɛ, sɛ woda toom a
+   wɔte sɛnea daa no anaa?"
+
+   "Woahyɛ aseɛ ate ɛyaw a ɛba ba anaa
+   (contractions)?"
+
+   "Nsuo bi apue afiri wo ho anaa?"
+
+Postpartum opening (Awoɔ akyi):
+"Woaka sɛ woawo. Ɛneɛ, mɛbisa wo nsɛm bi a ɛfa
+woɔfa akyi akwahosan ho — mogya, atiridii (fever),
+koko mu ɛyaw, ne abɔfra no akwahosan."
+
+
+
+
+3. Expanded Symptom Vocabulary
+(Twi)
+
+  English                     Twi
+
+
+  Nausea / morning            Ɔyare a ɛma obi pɛ sɛ
+  sickness                    ɔfe / anɔpa yare
+
+
+  Vomiting                    Feɛ
+
+
+  Back pain                   Akyi ɛyaw
+
+
+  Swelling (legs, hands,      Nan/nsa/anim a ɛhoro
+  face)                       (pian)
+English                 Twi
+
+
+Heartburn               Yafunu mu ɔhyew
+
+
+                        Ɛyaw a ɛba ba (afuru
+Contractions
+                        mu twitwe)
+
+
+                        Nsuo/ntam a ɛfiri wo
+Vaginal discharge
+                        ho
+
+
+Itching                 Honam ho yam
+
+
+Fatigue / tiredness     Ɔberɛfoɔ / Abrɛ
+
+
+Difficulty sleeping     Nna a ɛyɛ den
+
+
+Dizziness               Atifi ntwiri / ahummu
+
+
+Shortness of breath     Ahome a ɛyɛ den
+
+
+Frequent urination      Nsuo a ɔto no mpɛn pii
+
+
+                        Yafunu a ɛnyɛ
+Constipation
+                        mmerɛw (ɛnhwe)
+
+
+Leg cramps              Nan mu ɛyaw a ɛtwe
+
+
+Vaginal bleeding        Mogya a ɛfiri wo ho
+
+
+Severe abdominal pain   Yafunu mu ɛyaw kɛseɛ
+
+
+Severe headache with    Ti ɛyaw kɛseɛ a aniwa
+vision changes          nhu ade yie
+English                     Twi
+
+
+                            Abɔfra a ɔwɔ afuru mu
+Reduced fetal movement
+                            no ankasa nnyinaa ho
+
+
+                            Nnyinaadeɛ /
+Seizure
+                            Nkyekyeraseɛ
+
+
+                            Adwenem a ɛyera /
+Loss of consciousness
+                            Ntɔ fam
+
+
+Heavy postpartum            Mogya kɛseɛ a ɛba wɔ
+bleeding                    awoɔ akyi
+
+
+                            Atiridii / Ɔhyew a ɛwɔ
+Fever
+                            honam mu
+
+
+                            Koko mu ɛyaw / koko
+Breast pain / mastitis
+                            mu ahonhon
+
+
+                            Akuro a ɛnyare (sɛ
+Wound not healing (C-
+                            wɔatwa wo yafunu
+section/episiotomy)
+                            anaa)
+
+
+                            Abɔfra a ɔnnum nufu
+Baby not feeding well
+                            yiye
+
+
+                            Abɔfra a ne home yɛ
+Baby breathing difficulty
+                            den
+
+
+                            Abɔfra a ne honam ayɛ
+Baby jaundice (yellowing)
+                            akokɔsradeɛ
+4. Structured Triage Question Banks
+(Twi)
+
+Ti ɛyaw (Headache)
+
+   "Ti ɛyaw no aso den sɛn, ɛfiri 1 kosi 10?"
+
+   "Woahu sɛ w'aniwa nhu ade yie anaa woahu
+   akanea a ɛtwitwi?"
+
+   "Wo nsa anaa wo nan ho ahoro anaa?"
+
+   "Woate yafunu soro ɛyaw (mfɛ nifa fam) anaa?"
+
+
+Yafunu mu ɛyaw (Abdominal pain)
+
+   "Ɛyaw no wɔ afa bɛn wɔ wo yafunu mu?"
+
+   "Ɛba ba anaa ɛda hɔ daa?"
+
+   "Mogya biara ka ho anaa?"
+
+   "Woate ɛyaw denden a ɛnnyae anaa?"
+
+
+Mogya a ɛfiri wo ho (Bleeding)
+
+   "Mogya no dodoɔ sɛn — ɛte sɛ nsammogya
+   kakraa bi, anaasɛ ɛdɔɔso?"
+
+   "Ɛho color no te sɛn — kɔkɔɔ, tuntum, anaa biara
+   foforɔ?"
+
+   "Ɛyaw ka mogya no ho anaa?"
+
+   "Ɛberɛ dɛn na ɛhyɛɛ aseɛ?"
+Abɔfra ankasa nnyinaa ho (Reduced fetal
+movement)
+
+   "Ɛberɛ dɛn a ɛtwaam a woate abɔfra no kankyee
+   akyire yi?"
+
+   "Woanom nsuo bi ada fam anaa woada hɔ na
+   wode wo ho too abɔfra no kankyee ho anaa?"
+
+   "Nnɛ mu yi, woate kankyee dodoɔ sɛn, sɛ wode
+   toto da biara ho a?"
+
+
+Atiridii/ɔhyew (Fever)
+
+   "Ɔhyew no aso sɛn, sɛ wowɔ thermometer a wode
+   susu a?"
+
+   "Ɛka biribi foforɔ ho — sɛ akyi ɛyaw, koko mu
+   ɛyaw, anaa nsuo a ɛbɔn a ɛfiri wo ho?"
+
+   "Ɛberɛ dɛn na ɔhyew no hyɛɛ aseɛ?"
+
+
+
+
+5. Danger Signs Checklist (Twi) —
+For Category D Screening
+
+Bisa wɔn sɛ eyinom bi wɔ hɔ anaa:
+
+   Mogya a ɛfiri wo ho a ɛdɔɔso — Heavy vaginal
+   bleeding
+
+   Yafunu mu ɛyaw denden a ɛnnyae — Severe
+   unrelenting abdominal pain
+   Ti ɛyaw kɛseɛ a aniwa nhu ade yie — Severe
+   headache with vision changes
+
+   Abɔfra no ankasa nnyinaa (sɛ wonhu ne kankyee
+   koraa) — Absent fetal movement
+
+   Nnyinaadeɛ / nkyekyeraseɛ — Seizure/convulsion
+
+   Ɔyɛ te sɛ ɔbɛtɔ fam / adwenem a ɛyera —
+   Fainting/loss of consciousness
+
+   Ahome a ɛyɛ den yie — Severe breathing difficulty
+
+   Mogya kɛseɛ a ɛba wɔ awoɔ akyi (sen sɛ
+   nsammogya) — Heavy postpartum hemorrhage
+
+   Atiridii kɛseɛ a ɛka koko mu ɛyaw anaa akuro a
+   ayɛ hɔhɔ ho — High fever with breast pain or
+   wound infection
+
+Emergency response line:
+"Deɛ woaka yi yɛ ɔhaw kɛseɛ a ɛho hia sɛ wokɔ
+ayaresabea seesei ara. Mesrɛ wo, kɔ ayaresabea afei
+anaa frɛ obi mmoa wo ntɛm. Merenkɔ so mmisa
+nsɛm foforɔ — deɛ ɛho hia ne sɛ wubenya mmoa
+ntɛm."
+
+
+
+
+6. Common Lab Terms — General
+Explanation Only (Twi)
+
+These are general educational descriptions of what
+each test measures — not interpretation of any specific
+result. The AI should always direct the patient to a
+clinician for what their own number means.
+
+
+                                         What it
+                  Twi
+  Test                                   generally
+                  name/description
+                                         measures
+
+
+                                         Sɛnea mogya
+  Blood                                  no nam wɔ
+                  Mogya nhyɛso
+  pressure                               wo honam mu
+                                         denden
+
+
+                                         Sɛ wowɔ
+                                         mogya a
+                                         ɛdɔɔso wɔ wo
+  Hemoglobin      Mogya mu
+                                         honam mu
+  (Hb)            ahoɔden nsusuiɛ
+                                         anaa
+                                         (anaemia
+                                         checking)
+
+
+                                         Sɛ wo sisiriwa
+  Urine           Nsuo a wɔhwɛ           (kidney) yɛ
+  protein         mu protein             adwuma yiye
+                                         anaa
+
+
+                                         Sɛ wo mogya
+                                         mu asikyire
+  Blood           Mogya mu               dodoɔ mu
+  glucose         asikyire nsusuiɛ       (gestational
+                                         diabetes
+                                         checking)
+                                       What it
+                 Twi
+  Test                                 generally
+                 name/description
+                                       measures
+
+
+                                       Wo mogya
+                                       nsusuiɛ a
+                                       wɔde hwɛ
+                 Mogya
+  Blood group                          mmoa a
+                 abusuakuo
+                                       wobɛtumi
+                                       anya sɛ ɛho
+                                       hia
+
+
+                                       Sɛ mmoawa
+                                       bi a wɔfrɛ no
+  HIV test       HIV nsɔhwɛ            HIV wɔ wo
+                                       mogya mu
+                                       anaa
+
+
+                                       Sɛnea abɔfra
+  Ultrasound     Mfoni a wɔde hwɛ      no nyini ne
+  scan           afuru mu              sɛnea ɔda
+                                       afuru no mu
+
+
+
+Standard closing line for any lab explanation:
+"Eyi yɛ nkyerɛase a ɛda ase kɛkɛ. Ɛsɛ sɛ ɔdɔkota
+anaa nɔɔsi hwɛ wo nsɔhwɛ no yie na wakyerɛ wo deɛ
+ɛkyerɛ wɔ wo honam mu turodoo."
+7. Postpartum Mode — Expanded
+(Twi)
+
+Breastfeeding difficulty:
+"Kyerɛ me sɛnea abɔfra no num nufu no yɛ — ɔyɛ den,
+ɔfa kakraa, anaasɛ ɔmpɛ koraa?"
+
+Mastitis / breast infection:
+"Wo koko no ho ayɛ kɔkɔɔ anaa ho ayɛ hyew wɔ afa
+baako? Ɛka atiridii ho anaa?"
+
+Postpartum mood:
+"Sɛnea wo adwene te wɔ nnansa a atwam yi mu no,
+ɛte dɛn? Ɛyɛ ɔhaw ne ɔberɛfoɔ, anaasɛ biribi kɛse a
+ɛha wo adwene mmerɛ tenten?"
+(If severe/persistent, route through emotional support
+engine and recommend clinician follow-up — do not
+attempt to assess or name any mental health
+condition.)
+
+Newborn danger signs:
+
+    Abɔfra a ne home yɛ den anaa ɛyɛ ntɛmntɛm
+    dodo — Fast or difficult breathing
+
+    Abɔfra a ɔnnum nufu koraa — Not feeding at all
+
+    Abɔfra a ne honam ayɛ akokɔsradeɛ (jaundice) —
+    Yellowing skin
+
+    Abɔfra a ne ho ayɛ hyew anaa ho ayɛ
+    nwunwunwun (fever/very cold) — Fever or very
+    cold to touch
+8. Emotional Support Phrases —
+Expanded (Twi)
+
+  "Metie deɛ woka no, na ɛyɛ nea ɛfata sɛ ɛha wo."
+
+  "Apenimoo mma no bebree te saa nka ɔhaw yi, na
+  woyɛ yie sɛ woreka kyerɛ me."
+
+  "Ɛnyɛ wo nko ara — ma ɔbaa foforɔ a wowɔ w'akyi
+  (wo hokafo, wo busuafoɔ) mmoa wo."
+
+  "Sɛ ɔhaw no kɔ so a, ɛho hia sɛ ɔdɔkota hwɛ wo,
+  na yɛbɛboa wo akɔ hɔ."
+
+  "Ehu anaa ahopopo a wote nka no yɛ deɛ ɛtaa ba
+  wɔ apenimoo mu — ɛnkyerɛ sɛ biribi bɔne reba."
+
+  "Sɛ wopɛ sɛ wokasa kyerɛ obi wɔ w'abusua mu
+  anaa wo yɔnko mu a, ɛbɛboa wo."
+
+
+
+
+9. Closing / Follow-Up Lines (Twi)
+
+  "Yɛahu deɛ ɛsɛ sɛ woyɛ seesei. Hwɛ so na sɛ
+  biribi sesa a, san bɛkasa kyerɛ me."
+
+  "Kɔ w'ayaresabea nhyiamu a ɛdi hɔ no so, na sɛ
+  biribi foforɔ ba wɔ ntam a, bisa me."
+
+  "Wo akwahosan ho hia yɛn. Yɛbɛtena wo nkyɛn."
+10. Notes for Training / QA
+
+  Every Category C and D response must retain the
+  direct instruction to seek in-person care
+  immediately — do not let translation soften the
+  urgency.
+
+  Twi has regional and dialectal variation (Asante
+  Twi vs Akuapem Twi); this draft leans Asante Twi,
+  which is the most widely understood. Confirm
+  which variant your target users speak.
+
+  Medical loanwords (e.g., "blood pressure,"
+  "ultrasound," "HIV") are often used in English even
+  in Twi speech — keep them in English where a Twi
+  equivalent would confuse users, and pair with a
+  short Twi explanation, as done above.
+
+  Recommend a native-speaker clinician sign-off
+  pass before any of this ships into a live patient-
+  facing system.
+
