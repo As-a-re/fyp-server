@@ -1,23 +1,37 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
+const multer = require("multer");
 const supabase = require("../config/database");
 const { authenticateToken, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Send message
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB - generous enough for a short voice note or video clip
+});
+
+const CHAT_MEDIA_BUCKET = "chat-media";
+
+// Send message. Accepts either JSON (text/medical_report/emergency, as
+// before) or multipart/form-data with a "media" file part (audio/video) -
+// same request-shape pattern as the symptom-report photo upload in
+// routes/ai.js. multer only parses the body when the request is actually
+// multipart, so plain JSON requests are unaffected by adding this here.
 router.post(
   "/send",
   authenticateToken,
+  upload.single("media"),
   [
     body("recipient_id").notEmpty().withMessage("Recipient ID required"),
     body("message")
+      .optional({ checkFalsy: true })
       .trim()
-      .isLength({ min: 1, max: 1000 })
-      .withMessage("Message must be 1-1000 characters"),
+      .isLength({ max: 1000 })
+      .withMessage("Message must be at most 1000 characters"),
     body("message_type")
       .optional()
-      .isIn(["text", "medical_report", "emergency"])
+      .isIn(["text", "medical_report", "emergency", "audio", "video"])
       .withMessage("Invalid message type"),
   ],
   async (req, res) => {
@@ -27,7 +41,25 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { recipient_id, message, message_type = "text" } = req.body;
+      const { recipient_id } = req.body;
+      let { message, message_type = "text" } = req.body;
+
+      if (req.file) {
+        // A media file was attached - infer audio vs video from its mime
+        // type if the caller didn't explicitly say, and default the
+        // display text to a short placeholder since audio/video messages
+        // don't require typed text.
+        if (message_type === "text") {
+          message_type = req.file.mimetype.startsWith("video/") ? "video" : "audio";
+        }
+        if (!message || !message.trim()) {
+          message = message_type === "video" ? "[video message]" : "[voice message]";
+        }
+      }
+
+      if (!message || !message.trim()) {
+        return res.status(400).json({ error: "Message text or media is required" });
+      }
 
       // Verify recipient exists
       const { data: recipient, error: recipientError } = await supabase
@@ -61,7 +93,8 @@ router.post(
         });
       }
 
-      // Create message
+      // Create message row first (without media_url) so we have an id to
+      // namespace the storage path with - same pattern as symptom photos.
       const { data: newMessage, error } = await supabase
         .from("messages")
         .insert([
@@ -87,6 +120,56 @@ router.post(
         return res
           .status(500)
           .json({ error: "Failed to send message", details: error.message });
+      }
+
+      if (req.file) {
+        const extensionByMime = {
+          "audio/webm": "webm",
+          "audio/m4a": "m4a",
+          "audio/mp4": "m4a",
+          "audio/mpeg": "mp3",
+          "audio/wav": "wav",
+          "video/mp4": "mp4",
+          "video/webm": "webm",
+          "video/quicktime": "mov",
+        };
+        const extension = extensionByMime[req.file.mimetype] || (message_type === "video" ? "mp4" : "m4a");
+        const storagePath = `${req.user.id}/${newMessage.id}/media.${extension}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from(CHAT_MEDIA_BUCKET)
+          .upload(storagePath, req.file.buffer, {
+            contentType: req.file.mimetype,
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error("Chat media upload failed:", uploadError);
+          await supabase.from("messages").delete().eq("id", newMessage.id);
+          return res.status(500).json({ error: "Could not store media", details: uploadError.message });
+        }
+
+        const { data: withMedia, error: mediaUpdateError } = await supabase
+          .from("messages")
+          .update({ media_url: storagePath })
+          .eq("id", newMessage.id)
+          .select(
+            `
+          *,
+          sender:sender_id(name, role),
+          recipient:recipient_id(name, role)
+        `,
+          )
+          .single();
+
+        if (mediaUpdateError) {
+          await supabase.storage.from(CHAT_MEDIA_BUCKET).remove([storagePath]);
+          await supabase.from("messages").delete().eq("id", newMessage.id);
+          return res.status(500).json({ error: "Could not link media to message" });
+        }
+
+        newMessage.media_url = withMedia.media_url;
       }
 
       // Send notification (in production, this would use push notifications, email, etc.)
@@ -156,8 +239,20 @@ router.get("/conversation/:userId", authenticateToken, async (req, res) => {
         .is("read_at", null);
     }
 
+    // Sign media URLs (audio/video attachments) the same way symptom
+    // photos are signed - media_url stores the Storage path, not a public URL.
+    const messagesWithMedia = await Promise.all(
+      (messages || []).map(async (msg) => {
+        if (!msg.media_url) return msg;
+        const signed = await supabase.storage
+          .from(CHAT_MEDIA_BUCKET)
+          .createSignedUrl(msg.media_url, 600);
+        return { ...msg, media_signed_url: signed.data?.signedUrl || null };
+      }),
+    );
+
     res.json({
-      messages: messages.reverse(), // Reverse to show chronological order
+      messages: messagesWithMedia.reverse(), // Reverse to show chronological order
       otherUser,
       unreadCount: unreadMessages.length,
     });
