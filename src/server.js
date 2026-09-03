@@ -17,6 +17,30 @@ const twiRoutes = require("./routes/twi");
 const notificationRoutes = require("./routes/notifications");
 const errorHandler = require("./middleware/errorHandler");
 
+
+async function ensureStorageBuckets() {
+  const buckets = [
+    { id: "symptom-images", public: false },
+    { id: "chat-media", public: false },
+  ];
+  for (const bucket of buckets) {
+    try {
+      const { data, error } = await require("./config/database").storage.getBucket(bucket.id);
+      if (!data || error) {
+        const { error: createError } = await require("./config/database").storage.createBucket(
+          bucket.id,
+          { public: bucket.public, fileSizeLimit: "25MB" },
+        );
+        if (createError && !/already exists/i.test(createError.message || "")) {
+          console.warn(`Storage bucket ${bucket.id} could not be created:`, createError.message);
+        }
+      }
+    } catch (error) {
+      console.warn(`Storage bucket check failed for ${bucket.id}:`, error.message);
+    }
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -92,7 +116,8 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Prenatal Monitoring API ready`);
+  await ensureStorageBuckets();
 });

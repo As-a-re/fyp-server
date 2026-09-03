@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('Mother', 'Doctor', 'Administrator')),
+    doctor_id UUID REFERENCES users(id) ON DELETE SET NULL,
     language VARCHAR(50) DEFAULT 'English',
     phone VARCHAR(20),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -55,6 +56,11 @@ CREATE TABLE IF NOT EXISTS symptoms (
     ai_prediction VARCHAR(20),
     ai_confidence DECIMAL(3,2),
     ai_recommendations TEXT[],
+    duration TEXT,
+    review_status VARCHAR(20) DEFAULT 'pending' CHECK (review_status IN ('pending','under_review','reviewed')),
+    reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    review_feedback TEXT,
+    reviewed_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -86,8 +92,9 @@ CREATE TABLE IF NOT EXISTS messages (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    message TEXT NOT NULL,
-    message_type VARCHAR(20) DEFAULT 'text' CHECK (message_type IN ('text', 'medical_report', 'emergency')),
+    message TEXT,
+    message_type VARCHAR(20) DEFAULT 'text' CHECK (message_type IN ('text', 'medical_report', 'emergency', 'audio', 'video')),
+    media_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     read_at TIMESTAMP WITH TIME ZONE,
     CHECK (sender_id != recipient_id) -- Prevent sending messages to yourself
@@ -129,6 +136,8 @@ CREATE INDEX IF NOT EXISTS idx_health_records_user_id ON health_records(user_id)
 CREATE INDEX IF NOT EXISTS idx_health_records_recorded_at ON health_records(recorded_at);
 CREATE INDEX IF NOT EXISTS idx_symptoms_user_id ON symptoms(user_id);
 CREATE INDEX IF NOT EXISTS idx_symptoms_created_at ON symptoms(created_at);
+CREATE INDEX IF NOT EXISTS idx_symptoms_review_status ON symptoms(review_status);
+CREATE INDEX IF NOT EXISTS idx_symptoms_user_review ON symptoms(user_id, review_status);
 CREATE INDEX IF NOT EXISTS idx_ai_predictions_user_id ON ai_predictions(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_predictions_created_at ON ai_predictions(created_at);
 CREATE INDEX IF NOT EXISTS idx_ai_sessions_user_id ON ai_sessions(user_id);
@@ -314,3 +323,65 @@ SELECT DISTINCT ON (LEAST(sender_id, recipient_id), GREATEST(sender_id, recipien
     END as last_sender_id
 FROM messages
 ORDER BY LEAST(sender_id, recipient_id), GREATEST(sender_id, recipient_id), created_at DESC;
+
+-- In-app notifications (clinician-review feedback, etc.) - required by
+-- routes/notifications.js and routes/doctor.js
+CREATE TABLE IF NOT EXISTS notifications (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL DEFAULT 'general',
+    reference_id UUID,
+    reference_type VARCHAR(50),
+    data JSONB DEFAULT '{}'::jsonb,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    read_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created
+    ON notifications(user_id, created_at DESC);
+
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own notifications"
+    ON notifications FOR SELECT TO authenticated
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own notifications"
+    ON notifications FOR UPDATE TO authenticated
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- Expo push notification device tokens - required by
+-- POST /api/notifications/register-token and services/pushService.js
+CREATE TABLE IF NOT EXISTS push_tokens (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expo_push_token TEXT NOT NULL,
+    platform VARCHAR(20),
+    device_name TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, expo_push_token)
+);
+
+CREATE INDEX IF NOT EXISTS idx_push_tokens_user_active
+    ON push_tokens(user_id, is_active);
+
+ALTER TABLE push_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own push tokens"
+    ON push_tokens FOR SELECT TO authenticated
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own push tokens"
+    ON push_tokens FOR INSERT TO authenticated
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own push tokens"
+    ON push_tokens FOR UPDATE TO authenticated
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);

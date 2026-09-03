@@ -8,26 +8,38 @@ const { buildConversationPayloadCandidates } = require("../services/tavusOrchest
 const multer = require("multer");
 const { sendPushNotification } = require("../services/pushService");
 
-async function createTavusConversation(config) {
-  const payloadCandidates = buildConversationPayloadCandidates(config);
-
-  let lastError;
-  for (const payload of payloadCandidates) {
-    try {
-      return await axios.post(`${config.apiUrl}/conversations`, payload, {
-        headers: config.headers,
-        timeout: 15000,
-      });
-    } catch (error) {
-      lastError = error;
-      const status = error.response?.status;
-      if (status && status !== 400 && status !== 422) {
-        throw error;
-      }
-    }
+async function createTavusConversation(config, overrides = {}) {
+  if (!config.apiKey || !config.personaId || !config.replicaId) {
+    const error = new Error(
+      "Tavus is not fully configured. Set TAVUS_API_KEY, TAVUS_PERSONA_ID and TAVUS_REPLICA_ID.",
+    );
+    error.status = 503;
+    throw error;
   }
 
-  throw lastError;
+  const payload = {
+    replica_id: config.replicaId,
+    persona_id: config.personaId,
+    conversation_name: overrides.conversation_name || "M-CARE Maternal Support Agent",
+    ...(overrides.conversational_context
+      ? { conversational_context: overrides.conversational_context }
+      : {}),
+    ...(overrides.custom_greeting ? { custom_greeting: overrides.custom_greeting } : {}),
+    ...(overrides.callback_url ? { callback_url: overrides.callback_url } : {}),
+  };
+
+  try {
+    return await axios.post(`${config.apiUrl}/conversations`, payload, {
+      headers: config.headers,
+      timeout: 30000,
+      validateStatus: () => true,
+    });
+  } catch (error) {
+    const wrapped = new Error(`Unable to reach Tavus: ${error.message}`);
+    wrapped.status = 502;
+    wrapped.cause = error;
+    throw wrapped;
+  }
 }
 
 const router = express.Router();
@@ -42,6 +54,51 @@ const upload = multer({
   },
 });
 
+// Safe Tavus connectivity diagnostic. Never returns the API key.
+router.get("/tavus-status", authenticateToken, async (req, res) => {
+  try {
+    const config = getTavusConfig();
+    const missing = [];
+    if (!config.apiKey) missing.push("TAVUS_API_KEY");
+    if (!config.personaId) missing.push("TAVUS_PERSONA_ID");
+    if (!config.replicaId) missing.push("TAVUS_REPLICA_ID");
+
+    if (missing.length) {
+      return res.status(503).json({
+        success: false,
+        configured: false,
+        missing,
+        message: "Tavus configuration is incomplete",
+      });
+    }
+
+    const response = await axios.get(`${config.apiUrl}/conversations`, {
+      headers: config.headers,
+      params: { limit: 1 },
+      timeout: 15000,
+      validateStatus: () => true,
+    });
+
+    return res.status(response.status >= 200 && response.status < 300 ? 200 : response.status).json({
+      success: response.status >= 200 && response.status < 300,
+      configured: true,
+      tavus_http_status: response.status,
+      message:
+        response.status >= 200 && response.status < 300
+          ? "Tavus API key is accepted and the account is reachable."
+          : (response.data?.message || response.data?.error || "Tavus API rejected the credentials/request."),
+      account_accessible: response.status >= 200 && response.status < 300,
+    });
+  } catch (error) {
+    return res.status(502).json({
+      success: false,
+      configured: true,
+      account_accessible: false,
+      message: `Could not reach Tavus: ${error.message}`,
+    });
+  }
+});
+
 // Create AI conversation. English-only: the client should only ever reach
 // this route after choosing English on the language gate screen. Twi
 // conversations use POST /api/twi/message and /api/twi/voice instead.
@@ -51,6 +108,13 @@ router.post("/create-conversation", authenticateToken, async (req, res) => {
 
     try {
       const response = await createTavusConversation(config);
+      if (response.status < 200 || response.status >= 300) {
+        const tavusDetails = response.data?.message || response.data?.error || response.data?.detail || "Tavus rejected the conversation request";
+        const err = new Error(`Tavus HTTP ${response.status}: ${tavusDetails}`);
+        err.status = response.status;
+        err.providerResponse = response.data;
+        throw err;
+      }
       const conversationData = response.data;
 
       const { data: conversation, error } = await supabase
@@ -86,9 +150,16 @@ router.post("/create-conversation", authenticateToken, async (req, res) => {
       });
     } catch (tavusError) {
       console.error("Tavus API error:", tavusError.message);
-      return res.status(500).json({
+      const status = Number(tavusError.status || tavusError.response?.status) || 502;
+      return res.status(status >= 400 && status < 600 ? status : 502).json({
         error: "Failed to create conversation",
-        details: tavusError.message,
+        status,
+        details: tavusError.providerResponse?.message || tavusError.message,
+        provider: tavusError.providerResponse || null,
+        hint:
+          status === 402
+            ? "Tavus returned HTTP 402. Check Tavus account/plan/usage entitlement and API key."
+            : undefined,
       });
     }
   } catch (error) {
@@ -105,7 +176,9 @@ router.post("/start-session", authenticateToken, async (req, res) => {
       .select("*")
       .eq("user_id", req.user.id)
       .eq("session_status", "active")
-      .single();
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (activeSession) {
       return res.json({
@@ -126,6 +199,14 @@ router.post("/start-session", authenticateToken, async (req, res) => {
       const response = await createTavusConversation(config);
 
       console.log(`✅ [Tavus] API Response Status: ${response.status}`);
+
+      if (response.status < 200 || response.status >= 300) {
+        const tavusDetails = response.data?.message || response.data?.error || response.data?.detail || "Tavus rejected the conversation request";
+        const err = new Error(`Tavus HTTP ${response.status}: ${tavusDetails}`);
+        err.status = response.status;
+        err.providerResponse = response.data;
+        throw err;
+      }
 
       const sessionData = response.data;
 
@@ -173,10 +254,25 @@ router.post("/start-session", authenticateToken, async (req, res) => {
         console.error("Response Data:", JSON.stringify(tavusError.response.data, null, 2));
       }
 
-      return res.status(500).json({
+      const status = Number(tavusError.status || tavusError.response?.status) || 502;
+      const providerDetails =
+        tavusError.providerResponse ||
+        tavusError.response?.data ||
+        null;
+      return res.status(status >= 400 && status < 600 ? status : 502).json({
         success: false,
         error: "Failed to create Tavus conversation",
-        details: tavusError.response?.data?.message || tavusError.message,
+        status,
+        details:
+          providerDetails?.message ||
+          providerDetails?.error ||
+          providerDetails?.detail ||
+          tavusError.message,
+        provider: providerDetails,
+        hint:
+          status === 402
+            ? "Tavus returned HTTP 402. This is normally an account/plan/usage entitlement issue rather than a mobile-app bug. Check the Tavus Developer Portal billing/usage status and that the API key belongs to the intended account."
+            : undefined,
       });
     }
   } catch (error) {
@@ -204,6 +300,21 @@ router.post(
       }
 
       const { session_id } = req.body;
+
+      // End the remote Tavus conversation as well as the local session.
+      // The old implementation only updated Supabase, leaving the Tavus room
+      // active until its timeout.
+      const config = getTavusConfig();
+      if (config.apiKey && session_id) {
+        const remote = await axios.post(
+          `${config.apiUrl}/conversations/${encodeURIComponent(session_id)}/end`,
+          {},
+          { headers: config.headers, timeout: 15000, validateStatus: () => true },
+        );
+        if (remote.status >= 400 && remote.status !== 404) {
+          console.warn("Tavus remote end-session rejected:", remote.status, remote.data);
+        }
+      }
 
       const { data: session, error } = await supabase
         .from("ai_sessions")

@@ -6,7 +6,7 @@ The Twi voice endpoint was calling the legacy GhanaNLP ASR v1 endpoint:
 
 `/asr/v1/transcribe`
 
-The project now defaults to the current ASR v2 endpoint:
+The project defaults to the GhanaNLP ASR v2 endpoint:
 
 `/asr/v2/transcribe?language=tw`
 

@@ -24,8 +24,12 @@ router.post(
       .withMessage("Heart rate must be between 40-200 bpm"),
     body("temperature")
       .optional()
-      .isFloat({ min: 95, max: 105 })
-      .withMessage("Temperature must be between 95-105°F"),
+      .isFloat({ min: 35, max: 105 })
+      .custom((value) => {
+        const n = Number(value);
+        if ((n >= 35 && n <= 42) || (n >= 95 && n <= 105)) return true;
+        throw new Error("Temperature must be between 35-42°C or 95-105°F");
+      }),
     body("weight")
       .optional()
       .isFloat({ min: 50, max: 500 })
@@ -51,6 +55,18 @@ router.post(
         oxygen_level,
       } = req.body;
 
+      // The mobile UI uses Celsius (e.g. 36.6°C), while the existing ML
+      // model/database were trained around Fahrenheit. Normalize Celsius to
+      // Fahrenheit at the API boundary so both input formats work.
+      let normalizedTemperature = temperature;
+      if (temperature !== undefined && temperature !== null && temperature !== "") {
+        const numericTemperature = Number(temperature);
+        normalizedTemperature =
+          numericTemperature >= 35 && numericTemperature <= 42
+            ? Number((numericTemperature * 9 / 5 + 32).toFixed(1))
+            : numericTemperature;
+      }
+
       const { data: healthRecord, error } = await supabase
         .from("health_records")
         .insert([
@@ -59,7 +75,7 @@ router.post(
             blood_pressure,
             blood_sugar,
             heart_rate,
-            temperature,
+            temperature: normalizedTemperature,
             weight,
             oxygen_level,
             recorded_at: new Date().toISOString(),

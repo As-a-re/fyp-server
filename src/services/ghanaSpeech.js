@@ -108,9 +108,15 @@ class GhanaSpeech {
       throw new Error(`Invalid ASR language code: ${language}`);
     }
 
-    // Khaya ASR v3 is the configured production endpoint for this project.
-    // Override GHANA_ASR_VERSION only if your active subscription explicitly
-    // provides a different endpoint version.
+    // GhanaNLP ASR v3 is the configured production endpoint for this project.
+    // Note: I could not find public GhanaNLP documentation confirming a v3
+    // ASR endpoint exists at the time this was set (only v1 translate and
+    // v2 ASR/TTS are documented anywhere public) - this was set per an
+    // explicit request, on the assumption the active subscription has
+    // access to a v3 endpoint. If requests start failing with a 404, that's
+    // the first thing to check - override GHANA_ASR_VERSION back to "v2" (or
+    // whatever your subscription actually provides) via the environment
+    // without touching this code.
     const url = `${BASE}/asr/${ASR_VERSION}/transcribe?language=${encodeURIComponent(language)}`;
 
     console.log(`[Ghana ASR] POST ${url}`);

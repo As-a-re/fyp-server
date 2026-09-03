@@ -33,8 +33,12 @@ router.post(
       .withMessage("Heart rate must be between 40-200 bpm"),
     body("temperature")
       .optional()
-      .isFloat({ min: 95, max: 105 })
-      .withMessage("Temperature must be between 95-105°F"),
+      .isFloat({ min: 35, max: 105 })
+      .custom((value) => {
+        const n = Number(value);
+        if ((n >= 35 && n <= 42) || (n >= 95 && n <= 105)) return true;
+        throw new Error("Temperature must be between 35-42°C or 95-105°F");
+      }),
   ],
   async (req, res) => {
     try {
