@@ -5,7 +5,7 @@
  *
  * Usage:
  *   cd backend
- *   node src/scripts/ingestKnowledgeBase.js                         # ingests kb-content/mcare-twi-pdf-kb.json
+ *   node src/scripts/ingestKnowledgeBase.js                         # ingests backend/kb.json
  *   node src/scripts/ingestKnowledgeBase.js path/to/other-file.json  # ingest a different file
  *   node src/scripts/ingestKnowledgeBase.js --replace                # replace the whole index instead of merging
  *
@@ -30,8 +30,28 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL || "http://localhost:8000";
 const KB_INGEST_TOKEN = process.env.KB_INGEST_TOKEN;
 
 async function ingestKnowledgeBase({ filePath, replace = false } = {}) {
-  const resolvedPath = filePath || path.join(__dirname, "../../kb-content/mcare-twi-pdf-kb.json");
-  const chunks = JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
+  const resolvedPath = filePath || path.join(__dirname, "../../kb.json");
+  const source = JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
+  const chunks = Array.isArray(source)
+    ? source
+    : (source.entries || []).map((entry) => ({
+        id: entry.id,
+        content: [
+          entry.category,
+          entry.sub_category,
+          entry.intent,
+          ...(entry.keywords || []),
+          ...(entry.english_questions || []),
+          ...(entry.twi_questions || []),
+          entry.english_answer,
+          entry.twi_answer,
+        ].filter(Boolean).join("\n"),
+        metadata: {
+          category: entry.category,
+          sub_category: entry.sub_category,
+          intent: entry.intent,
+        },
+      }));
 
   console.log(`Ingesting ${chunks.length} chunk(s) from ${resolvedPath} into ${ML_SERVICE_URL} ...`);
 

@@ -73,10 +73,13 @@ router.post(
       }
 
       // Validate communication rules
+      const senderRole = String(req.user.role || "").toLowerCase();
+      const recipientRole = String(recipient.role || "").toLowerCase();
+
       if (
-        req.user.role === "Mother" &&
-        recipient.role !== "Doctor" &&
-        recipient.role !== "Administrator"
+        senderRole === "mother" &&
+        recipientRole !== "doctor" &&
+        recipientRole !== "administrator"
       ) {
         return res.status(403).json({
           error: "Mothers can only message doctors or administrators",
@@ -84,9 +87,9 @@ router.post(
       }
 
       if (
-        req.user.role === "Doctor" &&
-        recipient.role !== "Mother" &&
-        recipient.role !== "Administrator"
+        senderRole === "doctor" &&
+        recipientRole !== "mother" &&
+        recipientRole !== "administrator"
       ) {
         return res.status(403).json({
           error: "Doctors can only message mothers or administrators",

@@ -129,6 +129,10 @@ router.post(
   [
     body("email").isEmail().withMessage("Valid email required"),
     body("password").notEmpty().withMessage("Password required"),
+    body("role")
+      .optional()
+      .isIn(["mother", "doctor", "administrator", "Mother", "Doctor", "Administrator"])
+      .withMessage("Invalid role"),
   ],
   async (req, res) => {
     try {
@@ -137,7 +141,7 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { email, password } = req.body;
+      const { email, password, role: requestedRole } = req.body;
 
       // Find user
       const { data: user, error } = await supabase
@@ -154,6 +158,15 @@ router.post(
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
         return res.status(401).json({ error: "Invalid email or password" });
+      }
+
+      if (
+        requestedRole &&
+        String(user.role).toLowerCase() !== String(requestedRole).toLowerCase()
+      ) {
+        return res.status(403).json({
+          error: `This account is registered as a ${user.role}. Choose the matching login role.`,
+        });
       }
 
       // Generate JWT token

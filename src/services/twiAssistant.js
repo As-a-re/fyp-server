@@ -29,6 +29,7 @@ const speech = require("./ghanaSpeech");
 const kb = require("./ragService");
 const { detectMixedLanguage } = require("./mixedLanguageDetector");
 const { humanizeTwi } = require("./humanizeTwi");
+const localKnowledgeBase = require("./localKnowledgeBase");
 const mcare = require("../config/mcarePersona");
 
 const FALLBACK_ANSWER_EN =
@@ -109,6 +110,8 @@ class TwiAssistant {
     let isEmergency = false;
     let twiReply;
 
+    const localEntry = localKnowledgeBase.findEntry(text, englishQuery);
+
     if (emergency.isEmergency) {
       englishAnswer = mcare.EMERGENCY_RESPONSE_EN;
       isEmergency = true;
@@ -123,6 +126,19 @@ class TwiAssistant {
       // Same reasoning as the emergency case: a fixed, reviewed answer to a
       // trust-sensitive question, used verbatim rather than translated.
       twiReply = mcare.SELF_DISCLOSURE_TW;
+    } else if (localEntry) {
+      englishAnswer = localEntry.english_answer || FALLBACK_ANSWER_EN;
+      twiReply = localEntry.twi_answer || null;
+      citations = [{
+        id: localEntry.id,
+        score: 1,
+        metadata: {
+          category: localEntry.category,
+          sub_category: localEntry.sub_category,
+          intent: localEntry.intent,
+          source: "backend/kb.json",
+        },
+      }];
     } else if (kb.isConfigured()) {
       try {
         const kbResult = await kb.ask(englishQuery, sessionKey);
