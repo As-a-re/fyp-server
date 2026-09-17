@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
     doctor_id UUID REFERENCES users(id) ON DELETE SET NULL,
     language VARCHAR(50) DEFAULT 'English',
     phone VARCHAR(20),
+    password_reset_token TEXT,
+    password_reset_expires_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -23,6 +25,7 @@ CREATE TABLE IF NOT EXISTS pregnancy_profiles (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     gestational_age INTEGER CHECK (gestational_age >= 0 AND gestational_age <= 42),
+    pregnancy_start_date DATE,
     due_date DATE,
     blood_type VARCHAR(10),
     risk_level VARCHAR(20) DEFAULT 'Low' CHECK (risk_level IN ('Low', 'Medium', 'High')),
@@ -56,6 +59,10 @@ CREATE TABLE IF NOT EXISTS symptoms (
     ai_prediction VARCHAR(20),
     ai_confidence DECIMAL(3,2),
     ai_recommendations TEXT[],
+    ai_feedback_en TEXT,
+    ai_feedback_tw TEXT,
+    ai_audio_en TEXT,
+    ai_audio_tw TEXT,
     duration TEXT,
     review_status VARCHAR(20) DEFAULT 'pending' CHECK (review_status IN ('pending','under_review','reviewed')),
     reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,

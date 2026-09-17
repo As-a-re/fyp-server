@@ -173,14 +173,19 @@ router.get("/latest", authenticateToken, async (req, res) => {
     }
 
     // Combine health record with pregnancy profile data
-    const combinedData = record
-      ? {
-          ...record,
-          gestational_age: pregnancyProfile?.gestational_age || null,
-          due_date: pregnancyProfile?.due_date || null,
-          risk_level: pregnancyProfile?.risk_level || null,
-        }
-      : null;
+    let gestationalAge = pregnancyProfile?.gestational_age ?? null;
+    if (gestationalAge !== null && pregnancyProfile?.pregnancy_start_date) {
+      gestationalAge = Math.min(
+        42,
+        Math.floor((Date.now() - new Date(pregnancyProfile.pregnancy_start_date).getTime()) / (7 * 24 * 60 * 60 * 1000)),
+      );
+    }
+    const combinedData = {
+      ...(record || {}),
+      gestational_age: gestationalAge,
+      due_date: pregnancyProfile?.due_date || null,
+      risk_level: pregnancyProfile?.risk_level || null,
+    };
 
     res.json({
       record: combinedData,

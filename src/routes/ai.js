@@ -7,6 +7,9 @@ const { getTavusConfig } = require("../config/tavus");
 const { buildConversationPayloadCandidates } = require("../services/tavusOrchestrator");
 const multer = require("multer");
 const { sendPushNotification } = require("../services/pushService");
+const ghanaSpeech = require("../services/ghanaSpeech");
+const { translateEnglishToTwi } = require("../services/translator");
+const mcare = require("../config/mcarePersona");
 
 async function createTavusConversation(config, overrides = {}) {
   if (!config.apiKey || !config.personaId || !config.replicaId) {
@@ -487,13 +490,19 @@ router.post(
       }
 
       try {
-        const aiAnalysis = await analyzeSymptomWithAI(symptomText, severityLevel);
+        const aiAnalysis = await analyzeSymptomWithAI(symptomText, duration, severityLevel, req.file);
+        const feedbackTw = await translateEnglishToTwi(aiAnalysis.feedback_en);
+        const audioFiles = await createSymptomAudio(symptom.id, aiAnalysis.feedback_en, feedbackTw);
         const { data: updatedSymptom, error: updateError } = await supabase
           .from("symptoms")
           .update({
             ai_prediction: aiAnalysis.prediction,
             ai_confidence: aiAnalysis.confidence,
             ai_recommendations: aiAnalysis.recommendations,
+            ai_feedback_en: aiAnalysis.feedback_en,
+            ai_feedback_tw: feedbackTw,
+            ai_audio_en: audioFiles.en,
+            ai_audio_tw: audioFiles.tw,
           })
           .eq("id", symptom.id)
           .select()
@@ -504,7 +513,7 @@ router.post(
         return res.status(201).json({
           message: "Symptom submitted for clinician review",
           symptom: updatedSymptom,
-          analysis: aiAnalysis,
+          analysis: { ...aiAnalysis, feedback_tw: feedbackTw, audio: audioFiles },
         });
       } catch (aiError) {
         console.error("AI analysis error:", aiError.message);
@@ -526,7 +535,7 @@ router.get("/my-symptom-reviews", authenticateToken, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("symptoms")
-      .select("id, symptom_text, duration, severity_level, ai_prediction, ai_confidence, ai_recommendations, image_url, review_status, review_feedback, reviewed_at, reviewed_by, created_at")
+      .select("id, symptom_text, duration, severity_level, ai_prediction, ai_confidence, ai_recommendations, ai_feedback_en, ai_feedback_tw, ai_audio_en, ai_audio_tw, image_url, review_status, review_feedback, reviewed_at, reviewed_by, created_at")
       .eq("user_id", req.user.id)
       .order("created_at", { ascending: false })
       .limit(Math.min(Number(req.query.limit) || 50, 100));
@@ -539,7 +548,12 @@ router.get("/my-symptom-reviews", authenticateToken, async (req, res) => {
         const signed = await supabase.storage.from("symptom-images").createSignedUrl(item.image_url, 600);
         photo_url = signed.data?.signedUrl || null;
       }
-      return { ...item, photo_url };
+      const audioUrls = await Promise.all([item.ai_audio_en, item.ai_audio_tw].map(async (path) => {
+        if (!path) return null;
+        const signed = await supabase.storage.from("symptom-images").createSignedUrl(path, 600);
+        return signed.data?.signedUrl || null;
+      }));
+      return { ...item, photo_url, ai_audio_en_url: audioUrls[0], ai_audio_tw_url: audioUrls[1] };
     }));
 
     res.json({ reviews });
@@ -550,7 +564,40 @@ router.get("/my-symptom-reviews", authenticateToken, async (req, res) => {
 });
 
 // Helper function for symptom analysis
-async function analyzeSymptomWithAI(symptomText, severityLevel) {
+async function analyzeSymptomWithAI(symptomText, duration, severityLevel, imageFile) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (apiKey) {
+    const content = [{
+      type: "text",
+      text: `${symptomText}\nDuration: ${duration}\nSeverity: ${severityLevel}\nReturn JSON only with keys prediction (Low, Medium, High), confidence (0 to 1), recommendations (array of short strings), and feedback_en (safe, empathetic patient-facing guidance in English). Do not diagnose or prescribe. Escalate possible emergencies clearly.`,
+    }];
+    if (imageFile) {
+      content.push({
+        type: "image_url",
+        image_url: { url: `data:${imageFile.mimetype};base64,${imageFile.buffer.toString("base64")}` },
+      });
+    }
+    const response = await axios.post(
+      process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: process.env.GROQ_VISION_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages: [{ role: "system", content: mcare.RAG_SYSTEM_PREFIX }, { role: "user", content }],
+        temperature: 0.2,
+        max_tokens: 500,
+        response_format: { type: "json_object" },
+      },
+      { headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" }, timeout: 30000 },
+    );
+    const raw = response.data?.choices?.[0]?.message?.content || "{}";
+    const parsed = JSON.parse(raw.replace(/^```json\s*|\s*```$/g, ""));
+    return {
+      prediction: ["Low", "Medium", "High"].includes(parsed.prediction) ? parsed.prediction : "Medium",
+      confidence: Math.max(0, Math.min(1, Number(parsed.confidence) || 0.5)),
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+      feedback_en: String(parsed.feedback_en || "Please contact your midwife or doctor for a proper assessment."),
+    };
+  }
+
   const keywords = {
     headache: { risk: "Low", confidence: 0.6 },
     swelling: { risk: "Medium", confidence: 0.7 },
@@ -586,7 +633,27 @@ async function analyzeSymptomWithAI(symptomText, severityLevel) {
     prediction: analysis.risk,
     confidence: analysis.confidence,
     recommendations: recommendations[analysis.risk],
+    feedback_en: `${analysis.risk} risk warning: ${recommendations[analysis.risk].join(". ")}. Please contact your midwife or doctor for a proper assessment.`,
   };
+}
+
+async function createSymptomAudio(symptomId, englishText, twiText) {
+  const result = { en: null, tw: null };
+  for (const [language, text] of [["en", englishText], ["tw", twiText]]) {
+    try {
+      const audio = await ghanaSpeech.tts(text, "female", language);
+      const path = `${symptomId}/feedback-${language}.mp3`;
+      const { error } = await supabase.storage.from("symptom-images").upload(path, audio, {
+        contentType: "audio/mpeg",
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (!error) result[language] = path;
+    } catch (error) {
+      console.warn(`Symptom ${language} audio unavailable:`, error.message);
+    }
+  }
+  return result;
 }
 
 module.exports = router;
