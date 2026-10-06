@@ -13,6 +13,26 @@ ALTER TABLE public.users
   ADD COLUMN IF NOT EXISTS doctor_id UUID REFERENCES public.users(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_users_doctor_id ON public.users(doctor_id);
 
+-- Appointments required by /api/appointments and the doctor dashboard.
+CREATE TABLE IF NOT EXISTS public.appointments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  doctor_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  appointment_date TIMESTAMPTZ NOT NULL,
+  reason TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'scheduled'
+    CHECK (status IN ('scheduled', 'completed', 'cancelled')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_appointments_user_date
+  ON public.appointments(user_id, appointment_date DESC);
+CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date
+  ON public.appointments(doctor_id, appointment_date ASC);
+
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.symptoms
   ADD COLUMN IF NOT EXISTS duration TEXT,
   ADD COLUMN IF NOT EXISTS review_status VARCHAR(20) DEFAULT 'pending',

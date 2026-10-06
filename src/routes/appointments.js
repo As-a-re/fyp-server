@@ -112,7 +112,7 @@ router.get("/doctor/schedule", authenticateToken, async (req, res) => {
 
     const { data: appointments, error } = await supabase
       .from("appointments")
-      .select("*, users(name, email)")
+      .select("*")
       .eq("doctor_id", doctorId)
       .order("appointment_date", { ascending: true });
 
@@ -120,7 +120,31 @@ router.get("/doctor/schedule", authenticateToken, async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    res.json({ appointments });
+    const patientIds = [...new Set((appointments || []).map((appointment) => appointment.user_id).filter(Boolean))];
+    let patientsById = {};
+
+    if (patientIds.length > 0) {
+      const { data: patients, error: patientsError } = await supabase
+        .from("users")
+        .select("id, name, email")
+        .in("id", patientIds);
+
+      if (patientsError) {
+        return res.status(400).json({ error: patientsError.message });
+      }
+
+      patientsById = Object.fromEntries(
+        (patients || []).map((patient) => [patient.id, patient]),
+      );
+    }
+
+    res.json({
+      appointments: (appointments || []).map((appointment) => ({
+        ...appointment,
+        patient_name: patientsById[appointment.user_id]?.name || "Unknown Patient",
+        patient_email: patientsById[appointment.user_id]?.email || null,
+      })),
+    });
   } catch (error) {
     console.error("Get doctor appointments error:", error);
     res.status(500).json({ error: "Failed to fetch appointments" });

@@ -135,6 +135,19 @@ CREATE TABLE IF NOT EXISTS calls (
     CHECK (caller_id != recipient_id) -- Prevent calling yourself
 );
 
+-- Doctor appointments
+CREATE TABLE IF NOT EXISTS appointments (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        doctor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        appointment_date TIMESTAMP WITH TIME ZONE NOT NULL,
+        reason TEXT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'scheduled'
+            CHECK (status IN ('scheduled', 'completed', 'cancelled')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -159,6 +172,10 @@ CREATE INDEX IF NOT EXISTS idx_calls_caller_id ON calls(caller_id);
 CREATE INDEX IF NOT EXISTS idx_calls_recipient_id ON calls(recipient_id);
 CREATE INDEX IF NOT EXISTS idx_calls_status ON calls(status);
 CREATE INDEX IF NOT EXISTS idx_calls_started_at ON calls(started_at);
+CREATE INDEX IF NOT EXISTS idx_appointments_user_date
+    ON appointments(user_id, appointment_date DESC);
+CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date
+    ON appointments(doctor_id, appointment_date ASC);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -170,6 +187,7 @@ ALTER TABLE ai_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE emergency_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE calls ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 
